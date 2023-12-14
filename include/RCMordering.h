@@ -4,11 +4,12 @@
 #include <bits/stdc++.h>
 #include <Eigen/Sparse>
 
+using namespace Eigen;
+
 // using namespace std;
 
 std::vector<double> globalDegree;
 int iter_findIndex;
-
 int findIndex(std::vector<std::pair<int, double>> &a, const int &x)
 {
 	// for (int i = 0; i < a.size(); i++)

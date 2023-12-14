@@ -31,7 +31,6 @@ r ---> Size of a combination to be printed */
                 tmp[j] = data[j];
             }
             result.push_back(tmp);
-            std::cout << std::endl;
             return;
         }
 
