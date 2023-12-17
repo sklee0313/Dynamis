@@ -18,7 +18,7 @@
 #include "RCMordering.h"
 #include "TicToc.h"
 #include "Preprocessing.hpp"
-#include "ConstitutiveLaw.hpp"
+#include "LinearElasticity.hpp"
 
 using namespace Eigen;
 
@@ -34,22 +34,10 @@ int main(int argc, char *argv[])
     //--3D Linear Elasticity--//
     ////////////////////////////
 
-    Matrix<double, 6, 6> C = EFEM::ConstitutiveLaw::LinearElasticity(infile);
-    double density;
-    infile >> density;
-    // double nu, E, density;
-    // infile >> nu >> E >> density;
-    // Matrix<double, 6, 6> C;
-    // Matrix<double, 3, 3> C11;
-    // Matrix<double, 3, 3> C22;
-    // C11 << 1.0, nu / (1.0 - nu), nu / (1.0 - nu),
-    //     nu / (1.0 - nu), 1.0, nu / (1 - nu),
-    //     nu / (1.0 - nu), nu / (1.0 - nu), 1.0;
-    // C22 = Matrix<double, 3, 3>::Identity();
-    // C22 = C22 * (1 - 2 * nu) / (2 - 2 * nu);
-    // C.topLeftCorner(3, 3) = C11;
-    // C.bottomRightCorner(3, 3) = C22;
-    // C *= E * (1 - nu) / (1 + nu) / (1 - 2 * nu);
+    EFEM::ConstitutiveLaw::LinearElasticity elasticity(infile);
+
+    const auto C = elasticity.getC();
+    const auto density = elasticity.getDensity();
 
     int nn; // number of nodes
     infile >> nn;

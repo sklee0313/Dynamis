@@ -1,5 +1,8 @@
+  PoissonsRatio
 0.300000
+  YoungsModulus
 200000000000.000000
+  Density
 7800.000000
 625
 0 -1.000000e-01 1.000000e-01

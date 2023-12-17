@@ -13,7 +13,7 @@ endif()
 find_package(Threads REQUIRED)
 
 # Source files
-file(GLOB_RECURSE SRC_FILES ../../src/OFE8nodeLinear.cpp ../../src/ConstitutiveLaw.cpp)
+file(GLOB_RECURSE SRC_FILES ../../src/OFE8nodeLinear.cpp ../../src/LinearElasticity.cpp)
 file(GLOB_RECURSE OTHER_FILES ../../src/SkyLine.cpp)
 
 # Add executable
