@@ -17,8 +17,9 @@
 #include "Element.h"
 #include "RCMordering.h"
 #include "TicToc.h"
-#include "Preprocessing.hpp"
-#include "LinearElasticity.hpp"
+#include "PreProcessing.h"
+#include "LinearElasticity.h"
+#include "Nodes.h"
 
 using namespace Eigen;
 
@@ -28,16 +29,18 @@ int main(int argc, char *argv[])
     //--Check if input is valid--//
     ///////////////////////////////
 
-    std::ifstream infile = EFEM::core::InputChecker(argc, argv);
+    std::ifstream infile = Dynamis::PreProcessing::InputChecker(argc, argv);
 
     ////////////////////////////
     //--3D Linear Elasticity--//
     ////////////////////////////
 
-    EFEM::ConstitutiveLaw::LinearElasticity elasticity(infile);
+    Dynamis::ConstitutiveLaw::LinearElasticity elasticity(infile);
 
     const auto C = elasticity.getC();
     const auto density = elasticity.getDensity();
+
+    // Dynamis::core::Nodes nodes(infile);
 
     int nn; // number of nodes
     infile >> nn;
@@ -81,8 +84,8 @@ int main(int argc, char *argv[])
         0.3399810435848562648027, 0.6521451548625461426269,
         0.861136311594052575224, 0.3478548451374538573731;
 
-    OFEM::OFE8nodeLinear ElementMethod_K = OFEM::OFE8nodeLinear(NQ_K);
-    OFEM::OFE8nodeLinear ElementMethod_M = OFEM::OFE8nodeLinear(NQ_M);
+    Dynamis::OFE8nodeLinear ElementMethod_K = Dynamis::OFE8nodeLinear(NQ_K);
+    Dynamis::OFE8nodeLinear ElementMethod_M = Dynamis::OFE8nodeLinear(NQ_M);
 
     std::vector<double> radius = ElementMethod_K.radius(nodes, elements, ne, nn);
     // Construction of Stiffness Matrix using Direct Stiffness Method

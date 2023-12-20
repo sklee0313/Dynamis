@@ -230,12 +230,6 @@ ex_OFE8nodeLinear_GEVP_BINARY_DIR:STATIC=/home/sungkwon/projects/Gereralized-Eig
 //Value Computed by CMake
 ex_OFE8nodeLinear_GEVP_SOURCE_DIR:STATIC=/home/sungkwon/projects/Gereralized-Eigenvalue-Problem/example/ex_OFE8nodeLinear
 
-//Value Computed by CMake
-main_BINARY_DIR:STATIC=/home/sungkwon/projects/Gereralized-Eigenvalue-Problem/example/ex_OFE8nodeLinear/build
-
-//Value Computed by CMake
-main_SOURCE_DIR:STATIC=/home/sungkwon/projects/Gereralized-Eigenvalue-Problem/example/ex_OFE8nodeLinear
-
 
 ########################
 # INTERNAL cache entries

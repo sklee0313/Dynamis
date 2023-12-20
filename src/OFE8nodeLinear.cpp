@@ -1,7 +1,7 @@
 #include "../include/OFE8nodeLinear.h"
 #include "../include/Combination.h"
 #include <iostream>
-namespace OFEM
+namespace Dynamis
 {
 
     // Upon instantiation, all basic functions are evaluated at quadrature points and saved.

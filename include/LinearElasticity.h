@@ -1,12 +1,12 @@
-#ifndef LINEAR_ELASTICITY_HPP
-#define LINEAR_ELASTICITY_HPP
+#ifndef LINEAR_ELASTICITY_H
+#define LINEAR_ELASTICITY_H
 
 #include <Eigen/Dense>
 #include <fstream>
 #include <string>
 #include <iostream>
 
-namespace EFEM::ConstitutiveLaw
+namespace Dynamis::ConstitutiveLaw
 {
 
     class LinearElasticity
@@ -15,7 +15,6 @@ namespace EFEM::ConstitutiveLaw
         double nu, E, density;
         Eigen::Matrix<double, 6, 6> C;
 
-        bool tryReadValue(std::ifstream &file, std::string &line, const std::string &identifier, double &value);
         void computeC();
 
     public:
@@ -24,6 +23,8 @@ namespace EFEM::ConstitutiveLaw
         const double &getDensity() const;
     };
 
+    // More laws to come..
+
 }
 
-#endif // LINEAR_ELASTICITY_HPP
+#endif // LINEAR_ELASTICITY_H

@@ -177,6 +177,33 @@ home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/OFE8nodeLinear.cpp.s:
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/OFE8nodeLinear.cpp.s
 .PHONY : home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/OFE8nodeLinear.cpp.s
 
+home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.o: home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.cpp.o
+
+.PHONY : home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.o
+
+# target to build an object file
+home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.cpp.o:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.cpp.o
+.PHONY : home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.cpp.o
+
+home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.i: home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.cpp.i
+
+.PHONY : home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.i
+
+# target to preprocess a source file
+home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.cpp.i:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.cpp.i
+.PHONY : home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.cpp.i
+
+home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.s: home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.cpp.s
+
+.PHONY : home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.s
+
+# target to generate assembly for a file
+home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.cpp.s:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.cpp.s
+.PHONY : home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -219,6 +246,9 @@ help:
 	@echo "... home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/OFE8nodeLinear.o"
 	@echo "... home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/OFE8nodeLinear.i"
 	@echo "... home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/OFE8nodeLinear.s"
+	@echo "... home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.o"
+	@echo "... home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.i"
+	@echo "... home/sungkwon/projects/Gereralized-Eigenvalue-Problem/src/PreProcessing.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

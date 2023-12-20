@@ -2,7 +2,7 @@
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
 #include "Element.h"
-namespace OFEM
+namespace Dynamis
 {
     using namespace Eigen;
 

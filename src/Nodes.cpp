@@ -1,30 +1,10 @@
 #include <stdexcept>
+
+#include "Nodes.h"
 #include "PreProcessing.h"
-#include "LinearElasticity.h"
-
-namespace Dynamis::ConstitutiveLaw
+namespace Dynamis::core
 {
-    void LinearElasticity::computeC()
-    {
-        Eigen::Matrix<double, 3, 3> C11;
-        Eigen::Matrix<double, 3, 3> C22;
-
-        // Compute C11
-        C11 << 1.0, nu / (1.0 - nu), nu / (1.0 - nu),
-            nu / (1.0 - nu), 1.0, nu / (1 - nu),
-            nu / (1.0 - nu), nu / (1.0 - nu), 1.0;
-
-        // Compute C22
-        C22 = Eigen::Matrix<double, 3, 3>::Identity();
-        C22 *= (1 - 2 * nu) / (2 - 2 * nu);
-
-        // Assemble matrix C
-        C.topLeftCorner(3, 3) = C11;
-        C.bottomRightCorner(3, 3) = C22;
-        C *= E * (1 - nu) / ((1 + nu) * (1 - 2 * nu));
-    }
-
-    LinearElasticity::LinearElasticity(std::ifstream &file)
+    Nodes::Nodes(std::ifstream &file)
     {
         bool nuRead = false, ERead = false, densityRead = false;
 
@@ -32,17 +12,17 @@ namespace Dynamis::ConstitutiveLaw
         file.seekg(0, std::ios::beg); // Reset to the beginning of the file
         while (std::getline(file, line) && !(nuRead && ERead && densityRead))
         {
-            if (!ERead && Dynamis::PreProcessing::tryReadValue(file, line, "YoungsModulus", E))
+            if (!ERead && Dynamis::PreProcessing::tryReadValue(file, line, "Number of Nodes", E))
             {
                 ERead = true;
                 std::cout << ERead << std::endl;
             }
-            else if (!nuRead && Dynamis::PreProcessing::tryReadValue(file, line, "PoissonsRatio", nu))
+            else if (!nuRead && Dynamis::PreProcessing::tryReadValue(file, line, "Nodes", nu))
             {
                 nuRead = true;
                 std::cout << nu << std::endl;
             }
-            else if (!densityRead && Dynamis::PreProcessing::tryReadValue(file, line, "Density", density))
+            else if (!densityRead && tryReadValue(file, line, "Density", density))
             {
                 densityRead = true;
                 std::cout << density << std::endl;
