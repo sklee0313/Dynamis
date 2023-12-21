@@ -1,7 +1,8 @@
 #include <stdexcept>
+#include <iomanip>
 #include "PreProcessing.h"
 #include "LinearElasticity.h"
-
+using namespace Dynamis::PreProcessing;
 namespace Dynamis::ConstitutiveLaw
 {
     void LinearElasticity::computeC()
@@ -26,6 +27,12 @@ namespace Dynamis::ConstitutiveLaw
 
     LinearElasticity::LinearElasticity(std::ifstream &file)
     {
+        // Show we use linear elasticity
+        std::cout << GREEN << std::left << std::setw(20)
+                  << "Constitutive law: "
+                  << "Linear Elasticity" << RESET << std::endl;
+
+        // Read nu, E, and density
         bool nuRead = false, ERead = false, densityRead = false;
 
         std::string line;
@@ -35,25 +42,41 @@ namespace Dynamis::ConstitutiveLaw
             if (!ERead && Dynamis::PreProcessing::tryReadValue(file, line, "YoungsModulus", E))
             {
                 ERead = true;
-                std::cout << ERead << std::endl;
+                std::cout << GREEN << std::left << std::setw(20)
+                          << "Young's modulus: " << E / 1e9 << " GPa" << RESET << std::endl;
             }
             else if (!nuRead && Dynamis::PreProcessing::tryReadValue(file, line, "PoissonsRatio", nu))
             {
                 nuRead = true;
-                std::cout << nu << std::endl;
+                std::cout << GREEN << std::left << std::setw(20)
+                          << "Poisson's ratio: " << nu << RESET << std::endl;
             }
             else if (!densityRead && Dynamis::PreProcessing::tryReadValue(file, line, "Density", density))
             {
                 densityRead = true;
-                std::cout << density << std::endl;
+                std::cout << GREEN << std::left << std::setw(20)
+                          << "Density: " << density << " kg/m^3" << RESET << std::endl;
             }
         }
 
-        if (!nuRead || !ERead || !densityRead)
+        if (!nuRead || !ERead || !densityRead) // if
         {
-            std::cout << nuRead << ERead << densityRead << std::endl;
-            std::cout << nu << " " << E << " " << density << std::endl;
-            throw std::runtime_error("Failed to read necessary material properties from the file");
+            std::string errorMessage = RED + "Failed to read necessary material properties: ";
+
+            if (!nuRead)
+            {
+                errorMessage += "Poisson's ratio ";
+            }
+            if (!ERead)
+            {
+                errorMessage += "Young's modulus ";
+            }
+            if (!densityRead)
+            {
+                errorMessage += "Density ";
+            }
+
+            throw std::runtime_error(errorMessage);
         }
 
         computeC();

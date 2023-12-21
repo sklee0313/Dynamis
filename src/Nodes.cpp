@@ -6,21 +6,21 @@ namespace Dynamis::core
 {
     Nodes::Nodes(std::ifstream &file)
     {
-        bool nuRead = false, ERead = false, densityRead = false;
+        bool nnRead = false, nodesRead = false;
 
         std::string line;
         file.seekg(0, std::ios::beg); // Reset to the beginning of the file
-        while (std::getline(file, line) && !(nuRead && ERead && densityRead))
+        while (std::getline(file, line) && !(nnRead && nodesRead))
         {
-            if (!ERead && Dynamis::PreProcessing::tryReadValue(file, line, "Number of Nodes", E))
+            if (!nnRead && Dynamis::PreProcessing::tryReadValue(file, line, "Number of Nodes", nn))
             {
-                ERead = true;
-                std::cout << ERead << std::endl;
+                nnRead = true;
+                std::cout << "Number of nodes: " << nn << std::endl;
             }
-            else if (!nuRead && Dynamis::PreProcessing::tryReadValue(file, line, "Nodes", nu))
+            else if (!nodesRead && Dynamis::PreProcessing::tryReadMatrix(file, line, "Nodes", nodes))
             {
-                nuRead = true;
-                std::cout << nu << std::endl;
+                nodesRead = true;
+                std::cout << "" << std::endl;
             }
             else if (!densityRead && tryReadValue(file, line, "Density", density))
             {

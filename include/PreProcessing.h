@@ -10,6 +10,11 @@
 
 namespace Dynamis::PreProcessing
 {
+    // ANSI Escape Code for Colors
+    const std::string RED = "\033[31m";   // Red
+    const std::string GREEN = "\033[32m"; // Green
+    const std::string RESET = "\033[0m";  // Reset to default color
+
     // Trim from start (in place)
     static inline void ltrim(std::string &s)
     {

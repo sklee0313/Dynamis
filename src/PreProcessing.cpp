@@ -2,10 +2,22 @@
 
 bool Dynamis::PreProcessing::tryReadValue(std::ifstream &file, std::string &line, const std::string &identifier, double &value)
 {
+    std::string openingTag = "<" + identifier + ">";
+    std::string closingTag = "</" + identifier + ">";
+
     trim(line);
-    if (identifier == line)
+    std::string token;
+    if (openingTag == line)
     {
-        return bool(file >> value);
+        if (file >> value)
+        {
+            // Expect the closing tag
+            file >> token;
+            if (token == closingTag)
+            {
+                return true; // Successfully read the value
+            }
+        }
     }
     return false;
 }
