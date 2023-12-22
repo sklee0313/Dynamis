@@ -8,6 +8,8 @@
 #include <cctype>
 #include <locale>
 
+#include "Eigen/Dense"
+
 namespace Dynamis::PreProcessing
 {
     // ANSI Escape Code for Colors
@@ -38,9 +40,36 @@ namespace Dynamis::PreProcessing
         rtrim(s);
     }
 
-    bool tryReadValue(std::ifstream &file, std::string &line, const std::string &identifier, double &value);
+    template <typename T>
+    bool tryReadValue(std::ifstream &file, std::string &line, const std::string &identifier, T &value);
+
+    bool tryReadMatrix(std::ifstream &file, std::string &line, const std::string &identifier, Eigen::MatrixXd &matrix, const size_t &rows, const size_t &cols);
 
     std::ifstream InputChecker(int argc, char *argv[]);
+
+    template <typename T>
+    bool tryReadValue(std::ifstream &file, std::string &line, const std::string &identifier, T &value)
+    {
+        std::string openingTag = "<" + identifier + ">";
+        std::string closingTag = "</" + identifier + ">";
+
+        trim(line);
+        std::string token;
+        if (openingTag == line)
+        {
+            if (file >> value)
+            {
+                // Expect the closing tag
+                file >> token;
+                if (token == closingTag)
+                {
+                    std::cout << value << "hello" << std::endl;
+                    return true; // Successfully read the value
+                }
+            }
+        }
+        return false;
+    }
 }
 
 #endif // PreProcessing_H

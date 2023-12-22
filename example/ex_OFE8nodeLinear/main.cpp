@@ -40,22 +40,27 @@ int main(int argc, char *argv[])
     const auto C = elasticity.getC();
     const auto density = elasticity.getDensity();
 
-    // Dynamis::core::Nodes nodes(infile);
+    Dynamis::core::Nodes Nodes(infile);
+    const Eigen::MatrixXd &nodes = Nodes.getNodes();
+    const size_t &nn = Nodes.getNumNodes();
+    std::cout << nn << std::endl;
+    std::cout << nodes << std::endl;
 
-    int nn; // number of nodes
-    infile >> nn;
+    // int nn; // number of nodes
+    // infile >> nn;
 
-    MatrixXd nodes = MatrixXd::Zero(nn, 3);
-    for (int i = 0; i < nn; i++)
-    {
-        for (int j = 0; j < 3; j++)
-        {
-            infile >> nodes(i, j);
-        }
-    }
+    // MatrixXd nodes = MatrixXd::Zero(nn, 3);
+    // for (int i = 0; i < nn; i++)
+    // {
+    //     for (int j = 0; j < 3; j++)
+    //     {
+    //         infile >> nodes(i, j);
+    //     }
+    // }
 
     int ne, npe; // number of nodes per element, number of elements
     infile >> ne >> npe;
+    std::cout << ne << npe << std::endl;
 
     // instantiate the element
     std::vector<Element> elements;

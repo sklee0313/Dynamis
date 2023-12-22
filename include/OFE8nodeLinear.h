@@ -34,7 +34,7 @@ namespace Dynamis
         void CalRho(const double &r, const double &s, const double &t, Matrix<double, 1, 8> &rho);
         void Jacobian(const MatrixXd &nodes, const Element &element, const int &i);
         void OFEintp(Matrix<double, 1, 32> &H, const double &x, const double &y, const double &z, const int &k, const MatrixXd &nodes, const Element &element, const std::vector<double> &radius);
-        std::vector<double> radius(const MatrixXd &nodes, const std::vector<Element> &elements, int &ne, int &nn);
+        std::vector<double> radius(const MatrixXd &nodes, const std::vector<Element> &elements, int &ne, const size_t &nn);
     };
 
 }

@@ -1,6 +1,6 @@
 #include "PreProcessing.h"
 
-bool Dynamis::PreProcessing::tryReadValue(std::ifstream &file, std::string &line, const std::string &identifier, double &value)
+bool Dynamis::PreProcessing::tryReadMatrix(std::ifstream &file, std::string &line, const std::string &identifier, Eigen::MatrixXd &matrix, const size_t &rows, const size_t &cols)
 {
     std::string openingTag = "<" + identifier + ">";
     std::string closingTag = "</" + identifier + ">";
@@ -9,14 +9,22 @@ bool Dynamis::PreProcessing::tryReadValue(std::ifstream &file, std::string &line
     std::string token;
     if (openingTag == line)
     {
-        if (file >> value)
+        matrix.resize(rows, cols);
+        for (size_t i = 0; i < rows; i++)
         {
-            // Expect the closing tag
-            file >> token;
-            if (token == closingTag)
+            for (size_t j = 0; j < cols; j++)
             {
-                return true; // Successfully read the value
+                if (!(file >> matrix(i, j)))
+                {
+                    std::string errorMessage = "Error with reading matrix(" + std::to_string(i) + ", " + std::to_string(j) + ")";
+                    throw std::runtime_error(errorMessage);
+                };
             }
+        }
+        file >> token;
+        if (token == closingTag)
+        {
+            return true; // Successfully read the value
         }
     }
     return false;

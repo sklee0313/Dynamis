@@ -307,7 +307,7 @@ namespace Dynamis
             h_t(i, all) * nodes(element.nodesIds, 0), h_t(i, all) * nodes(element.nodesIds, 1), h_t(i, all) * nodes(element.nodesIds, 2);
     }
 
-    std::vector<double> OFE8nodeLinear::radius(const MatrixXd &nodes, const std::vector<Element> &elements, int &ne, int &nn)
+    std::vector<double> OFE8nodeLinear::radius(const MatrixXd &nodes, const std::vector<Element> &elements, int &ne, const size_t &nn)
     {
 
         // find the combinations

@@ -39,19 +39,19 @@ namespace Dynamis::ConstitutiveLaw
         file.seekg(0, std::ios::beg); // Reset to the beginning of the file
         while (std::getline(file, line) && !(nuRead && ERead && densityRead))
         {
-            if (!ERead && Dynamis::PreProcessing::tryReadValue(file, line, "YoungsModulus", E))
+            if (!ERead && Dynamis::PreProcessing::tryReadValue<double>(file, line, "YoungsModulus", E))
             {
                 ERead = true;
                 std::cout << GREEN << std::left << std::setw(20)
                           << "Young's modulus: " << E / 1e9 << " GPa" << RESET << std::endl;
             }
-            else if (!nuRead && Dynamis::PreProcessing::tryReadValue(file, line, "PoissonsRatio", nu))
+            else if (!nuRead && Dynamis::PreProcessing::tryReadValue<double>(file, line, "PoissonsRatio", nu))
             {
                 nuRead = true;
                 std::cout << GREEN << std::left << std::setw(20)
                           << "Poisson's ratio: " << nu << RESET << std::endl;
             }
-            else if (!densityRead && Dynamis::PreProcessing::tryReadValue(file, line, "Density", density))
+            else if (!densityRead && Dynamis::PreProcessing::tryReadValue<double>(file, line, "Density", density))
             {
                 densityRead = true;
                 std::cout << GREEN << std::left << std::setw(20)

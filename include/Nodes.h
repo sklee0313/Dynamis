@@ -15,11 +15,13 @@ namespace Dynamis::core
     class Nodes
     {
     private:
-        std::vector<Node> nodes; // set of nodes
-        size_t nn;               // number of nodes
+        Eigen::MatrixXd nodes; // set of nodes
+        size_t numNodes;       // number of nodes
 
     public:
         Nodes(std::ifstream &file);
+        Eigen::MatrixXd &getNodes();
+        size_t &getNumNodes();
     };
 }
 
