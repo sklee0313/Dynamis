@@ -40,9 +40,6 @@ namespace Dynamis::PreProcessing
         rtrim(s);
     }
 
-    template <typename T>
-    bool tryReadValue(std::ifstream &file, std::string &line, const std::string &identifier, T &value);
-
     bool tryReadMatrix(std::ifstream &file, std::string &line, const std::string &identifier, Eigen::MatrixXd &matrix, const size_t &rows, const size_t &cols);
 
     std::ifstream InputChecker(int argc, char *argv[]);
@@ -63,13 +60,32 @@ namespace Dynamis::PreProcessing
                 file >> token;
                 if (token == closingTag)
                 {
-                    std::cout << value << "hello" << std::endl;
                     return true; // Successfully read the value
                 }
             }
         }
         return false;
     }
+
+    template <typename T>
+    bool readValue(std::ifstream &file, const std::string &key, T &value)
+    {
+        std::string line;
+        bool valueRead = false;
+        file.seekg(0, std::ios::beg); // Reset to the beginning of the file
+        while (std::getline(file, line) && !valueRead)
+        {
+            if (!valueRead && Dynamis::PreProcessing::tryReadValue(file, line, key, value))
+            {
+                valueRead = true;
+                std::cout << "Successful to read " << key << std::endl;
+                break;
+            }
+        }
+        return valueRead;
+    }
+    bool readMatrix(std::ifstream &file, const std::string &key, Eigen::MatrixXd &matrix, const size_t &numRows, const size_t &numCols);
+
 }
 
 #endif // PreProcessing_H

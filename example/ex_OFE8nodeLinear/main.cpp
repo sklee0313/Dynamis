@@ -43,8 +43,6 @@ int main(int argc, char *argv[])
     Dynamis::core::Nodes Nodes(infile);
     const Eigen::MatrixXd &nodes = Nodes.getNodes();
     const size_t &nn = Nodes.getNumNodes();
-    std::cout << nn << std::endl;
-    std::cout << nodes << std::endl;
 
     // int nn; // number of nodes
     // infile >> nn;

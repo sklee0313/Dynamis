@@ -6,32 +6,18 @@ namespace Dynamis::core
 {
     Nodes::Nodes(std::ifstream &file)
     {
-        bool numNodesRead = false, nodesRead = false;
+        if (!Dynamis::PreProcessing::readValue(file, "NumNodes", numNodes))
+        {
+            throw std::runtime_error("Error in reading NumNodes");
+        }
+        else
+        {
+            std::cout << "Number of nodes: " << numNodes << std::endl;
+        }
 
-        std::string line;
-        file.seekg(0, std::ios::beg); // Reset to the beginning of the file
-        while (std::getline(file, line) && !numNodesRead)
+        if (!Dynamis::PreProcessing::readMatrix(file, "Nodes", nodes, numNodes, 3))
         {
-            if (!numNodesRead && Dynamis::PreProcessing::tryReadValue(file, line, "NumNodes", numNodes))
-            {
-                numNodesRead = true;
-                std::cout << "Number of nodes: " << numNodes << std::endl;
-                break;
-            }
-        }
-        if (!numNodesRead)
-        {
-            throw std::runtime_error("Error in reading number of nodes");
-        }
-        file.seekg(0, std::ios::beg); // Reset to the beginning of the file
-        while (std::getline(file, line) && !nodesRead)
-        {
-            if (!nodesRead && Dynamis::PreProcessing::tryReadMatrix(file, line, "Nodes", nodes, numNodes, 3))
-            {
-                numNodesRead = true;
-                std::cout << "Nodes creation done" << std::endl;
-                break;
-            }
+            throw std::runtime_error("Error in reading nodes");
         }
     }
     Eigen::MatrixXd &Nodes::getNodes()

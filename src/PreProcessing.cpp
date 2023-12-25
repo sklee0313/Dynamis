@@ -56,3 +56,20 @@ std::ifstream Dynamis::PreProcessing::InputChecker(int argc, char *argv[])
 
     return infile; // Return the ifstream object if no exception was thrown
 }
+
+bool Dynamis::PreProcessing::readMatrix(std::ifstream &file, const std::string &key, Eigen::MatrixXd &matrix, const size_t &numRows, const size_t &numCols)
+{
+    std::string line;
+    bool matrixRead = false;
+    file.seekg(0, std::ios::beg); // Reset to the beginning of the file
+    while (std::getline(file, line) && !matrixRead)
+    {
+        if (!matrixRead && Dynamis::PreProcessing::tryReadMatrix(file, line, key, matrix, numRows, numCols))
+        {
+            matrixRead = true;
+            std::cout << "Successful to read " + key << std::endl;
+            break;
+        }
+    }
+    return matrixRead;
+}
