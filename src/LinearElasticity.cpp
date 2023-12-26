@@ -25,7 +25,7 @@ namespace Dynamis::ConstitutiveLaw
         C *= E * (1 - nu) / ((1 + nu) * (1 - 2 * nu));
     }
 
-    LinearElasticity::LinearElasticity(std::ifstream &file)
+    LinearElasticity::LinearElasticity(std::unique_ptr<std::ifstream> &file)
     {
         // Show we use linear elasticity
         std::cout << GREEN << std::left << std::setw(20)
@@ -36,8 +36,8 @@ namespace Dynamis::ConstitutiveLaw
         bool nuRead = false, ERead = false, densityRead = false;
 
         std::string line;
-        file.seekg(0, std::ios::beg); // Reset to the beginning of the file
-        while (std::getline(file, line) && !(nuRead && ERead && densityRead))
+        (*file).seekg(0, std::ios::beg); // Reset to the beginning of the file
+        while (std::getline(*file, line) && !(nuRead && ERead && densityRead))
         {
             if (!ERead && Dynamis::PreProcessing::tryReadValue<double>(file, line, "YoungsModulus", E))
             {

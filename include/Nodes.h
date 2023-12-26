@@ -1,28 +1,30 @@
 #ifndef NODES_H
 #define NODES_H
 
-#include <Eigen/Dense>
-#include <fstream>
-#include <string>
 #include <iostream>
-#include <vector>
-
-#include "Node.h"
+#include <fstream>
+#include <memory>
+#include "Eigen/Dense"
 
 namespace Dynamis::core
 {
 
     class Nodes
     {
-    private:
-        Eigen::MatrixXd nodes; // set of nodes
-        size_t numNodes;       // number of nodes
-
     public:
-        Nodes(std::ifstream &file);
+        // Constructor
+        Nodes(std::unique_ptr<std::ifstream> &file);
+
+        // Member functions
         Eigen::MatrixXd &getNodes();
         size_t &getNumNodes();
+
+    private:
+        // Member variables
+        Eigen::MatrixXd nodes;
+        size_t numNodes;
     };
-}
+
+} // namespace Dynamis::core
 
 #endif // NODES_H

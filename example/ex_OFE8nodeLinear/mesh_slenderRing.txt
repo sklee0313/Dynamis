@@ -1,5 +1,5 @@
 <PoissonsRatio>
-0.300000
+0.3
 </PoissonsRatio>
 <YoungsModulus>
 200000000000.000000

@@ -18,7 +18,7 @@ namespace Dynamis::ConstitutiveLaw
         void computeC();
 
     public:
-        LinearElasticity(std::ifstream &file);
+        LinearElasticity(std::unique_ptr<std::ifstream> &file);
         const Eigen::Matrix<double, 6, 6> &getC() const;
         const double &getDensity() const;
     };

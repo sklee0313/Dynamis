@@ -4,7 +4,7 @@
 #include "PreProcessing.h"
 namespace Dynamis::core
 {
-    Nodes::Nodes(std::ifstream &file)
+    Nodes::Nodes(std::unique_ptr<std::ifstream> &file)
     {
         if (!Dynamis::PreProcessing::readValue(file, "NumNodes", numNodes))
         {

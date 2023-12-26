@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cctype>
 #include <locale>
+#include <memory>
 
 #include "Eigen/Dense"
 
@@ -40,12 +41,12 @@ namespace Dynamis::PreProcessing
         rtrim(s);
     }
 
-    bool tryReadMatrix(std::ifstream &file, std::string &line, const std::string &identifier, Eigen::MatrixXd &matrix, const size_t &rows, const size_t &cols);
+    bool tryReadMatrix(std::unique_ptr<std::ifstream> &file, std::string &line, const std::string &identifier, Eigen::MatrixXd &matrix, const size_t &rows, const size_t &cols);
 
-    std::ifstream InputChecker(int argc, char *argv[]);
+    std::unique_ptr<std::ifstream> InputChecker(int argc, char *argv[]);
 
     template <typename T>
-    bool tryReadValue(std::ifstream &file, std::string &line, const std::string &identifier, T &value)
+    bool tryReadValue(std::unique_ptr<std::ifstream> &file, std::string &line, const std::string &identifier, T &value)
     {
         std::string openingTag = "<" + identifier + ">";
         std::string closingTag = "</" + identifier + ">";
@@ -54,10 +55,10 @@ namespace Dynamis::PreProcessing
         std::string token;
         if (openingTag == line)
         {
-            if (file >> value)
+            if (*file >> value)
             {
                 // Expect the closing tag
-                file >> token;
+                *file >> token;
                 if (token == closingTag)
                 {
                     return true; // Successfully read the value
@@ -68,14 +69,14 @@ namespace Dynamis::PreProcessing
     }
 
     template <typename T>
-    bool readValue(std::ifstream &file, const std::string &key, T &value)
+    bool readValue(std::unique_ptr<std::ifstream> &file, const std::string &key, T &value)
     {
         std::string line;
         bool valueRead = false;
-        file.seekg(0, std::ios::beg); // Reset to the beginning of the file
-        while (std::getline(file, line) && !valueRead)
+        (*file).seekg(0, std::ios::beg); // Reset to the beginning of the file
+        while (std::getline(*file, line) && !valueRead)
         {
-            if (!valueRead && Dynamis::PreProcessing::tryReadValue(file, line, key, value))
+            if (Dynamis::PreProcessing::tryReadValue(file, line, key, value))
             {
                 valueRead = true;
                 std::cout << "Successful to read " << key << std::endl;
@@ -84,7 +85,7 @@ namespace Dynamis::PreProcessing
         }
         return valueRead;
     }
-    bool readMatrix(std::ifstream &file, const std::string &key, Eigen::MatrixXd &matrix, const size_t &numRows, const size_t &numCols);
+    bool readMatrix(std::unique_ptr<std::ifstream> &file, const std::string &key, Eigen::MatrixXd &matrix, const size_t &numRows, const size_t &numCols);
 
 }
 

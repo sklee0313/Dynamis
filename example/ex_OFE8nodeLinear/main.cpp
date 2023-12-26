@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     //--Check if input is valid--//
     ///////////////////////////////
 
-    std::ifstream infile = Dynamis::PreProcessing::InputChecker(argc, argv);
+    auto infile = Dynamis::PreProcessing::InputChecker(argc, argv);
 
     ////////////////////////////
     //--3D Linear Elasticity--//
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     // }
 
     int ne, npe; // number of nodes per element, number of elements
-    infile >> ne >> npe;
+    *infile >> ne >> npe;
     std::cout << ne << npe << std::endl;
 
     // instantiate the element
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     {
         for (int j = 0; j < npe; j++)
         {
-            infile >> tmp;
+            *infile >> tmp;
             nodesIds.push_back(tmp);
         }
         Element element(nodesIds);
