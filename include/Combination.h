@@ -1,7 +1,6 @@
 // C++ program to print all combination
 // of size r in an array of size n
 #pragma once
-#include <bits/stdc++.h>
 #include <vector>
 class Combination
 {
@@ -58,10 +57,12 @@ public:
     {
         // A temporary array to store
         // all combination one by one
-        int data[r];
+        int * data = new int[r];
+        //int data[r];
 
         // Print all combination using
         // temporary array 'data[]'
         combinationUtil(arr, data, 0, n - 1, 0, r, result);
+        delete[] data;
     }
 };

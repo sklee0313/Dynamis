@@ -1,8 +1,9 @@
 // C++ program for Implementation of
 // Reverse Cuthill Mckee Algorithm
 
-#include <bits/stdc++.h>
+
 #include <Eigen/Sparse>
+#include <queue>
 
 using namespace Eigen;
 
