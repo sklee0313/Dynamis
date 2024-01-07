@@ -1,5 +1,5 @@
-#ifndef NODES_H
-#define NODES_H
+#ifndef MESH_H
+#define MESH_H
 
 #include <iostream>
 #include <fstream>
@@ -9,23 +9,23 @@
 namespace Dynamis::core
 {
 
-    class Nodes
+    class Mesh
     {
     public:
         // Constructor
-        Nodes(std::unique_ptr<std::ifstream> &file);
+        Mesh(std::unique_ptr<std::ifstream> &file);
 
         // Member functions
-        Eigen::MatrixXd &getNodes();
-        Eigen::MatrixXd &getElements();
+        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> &getNodes();
+        Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic> &getElements();
         size_t &getNumNodes();
         size_t &getNumElements();
         size_t &getNumVertices();
 
     private:
         // Member variables
-        Eigen::MatrixXd nodes;
-        Eigen::MatrixXd elements;
+        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> nodes;
+        Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic> elements;
         size_t numNodes;
         size_t numVertices;
         size_t numElements;
@@ -33,4 +33,4 @@ namespace Dynamis::core
 
 } // namespace Dynamis::core
 
-#endif // NODES_H
+#endif // MESH_H

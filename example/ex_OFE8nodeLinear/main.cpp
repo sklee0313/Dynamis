@@ -19,7 +19,7 @@
 #include "TicToc.h"
 #include "PreProcessing.h"
 #include "LinearElasticity.h"
-#include "Nodes.h"
+#include "Mesh.h"
 
 using namespace Eigen;
 
@@ -40,9 +40,9 @@ int main(int argc, char *argv[])
     const auto C = elasticity.getC();
     const auto density = elasticity.getDensity();
 
-    Dynamis::core::Nodes Nodes(infile);
-    const Eigen::MatrixXd &nodes = Nodes.getNodes();
-    const size_t &nn = Nodes.getNumNodes();
+    Dynamis::core::Mesh mesh(infile);
+    const Eigen::MatrixXd &nodes = mesh.getNodes();
+    const size_t &nn = mesh.getNumNodes();
 
     // int nn; // number of nodes
     // infile >> nn;
@@ -60,24 +60,25 @@ int main(int argc, char *argv[])
     // *infile >> ne >> npe;
     // std::cout << ne << npe << std::endl;
 
-    const size_t &ne = Nodes.getNumElements();
-    const size_t &npe = Nodes.getNumVertices();
+    const size_t &ne = mesh.getNumElements();
+    const size_t &npe = mesh.getNumVertices();
+    const MatrixXi &elements = mesh.getElements();
 
     // instantiate the element
-    std::vector<Element> elements;
-    std::vector<int> nodesIds;
-    int tmp;
-    for (auto i = 0; i < ne; i++)
-    {
-        for (auto j = 0; j < npe; j++)
-        {
-            *infile >> tmp;
-            nodesIds.push_back(tmp);
-        }
-        Element element(nodesIds);
-        elements.push_back(element);
-        nodesIds.clear();
-    }
+    // std::vector<Element> elements;
+    // std::vector<int> nodesIds;
+    // int tmp;
+    // for (auto i = 0; i < ne; i++)
+    // {
+    //     for (auto j = 0; j < npe; j++)
+    //     {
+    //         *infile >> tmp;
+    //         nodesIds.push_back(tmp);
+    //     }
+    //     Element element(nodesIds);
+    //     elements.push_back(element);
+    //     nodesIds.clear();
+    // }
 
     // Define the numerical quadrature
     MatrixXd NQ_K(3, 2);
@@ -97,10 +98,11 @@ int main(int argc, char *argv[])
     // Construction of Stiffness Matrix using Direct Stiffness Method
     tic();
     std::vector<Triplet<double>> triplets;
-    for (std::vector<Element>::iterator iter = elements.begin(); iter != elements.end(); iter++)
+    for (int i = 0; i < ne; i++)
     {
-        ElementMethod_K.ElementStiffness(C, nodes, *iter, triplets, NQ_K, radius); //,NQ
+        ElementMethod_K.ElementStiffness(C, nodes, elements(i, all), triplets, NQ_K, radius); //,NQ
     }
+
     SparseMatrix<double> globalK(3 * 4 * nn, 3 * 4 * nn);
     globalK.setFromTriplets(triplets.begin(), triplets.end());
     toc();
@@ -109,10 +111,11 @@ int main(int argc, char *argv[])
     // Construction of Mass Matrix
     tic();
     triplets.clear();
-    for (std::vector<Element>::iterator iter = elements.begin(); iter != elements.end(); iter++)
+    for (int i = 0; i < ne; i++)
     {
-        ElementMethod_M.ElementMass(density, nodes, *iter, triplets, NQ_M, radius); //,NQ
+        ElementMethod_M.ElementMass(density, nodes, elements(i, all), triplets, NQ_M, radius); //,NQ
     }
+
     SparseMatrix<double> globalM(3 * 4 * nn, 3 * 4 * nn);
     globalM.setFromTriplets(triplets.begin(), triplets.end());
     toc();

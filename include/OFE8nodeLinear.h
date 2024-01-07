@@ -29,12 +29,12 @@ namespace Dynamis
     public:
         OFE8nodeLinear(const MatrixXd &NQ);
         int nodaldofs = 12;
-        void ElementStiffness(const MatrixXd &C, const MatrixXd &nodes, const Element &element, std::vector<Triplet<double>> &triplets, const MatrixXd &NQ, const std::vector<double> &radius);
-        void ElementMass(const double &density, const MatrixXd &nodes, const Element &element, std::vector<Triplet<double>> &triplets, const MatrixXd &NQ, const std::vector<double> &radius);
+        void ElementStiffness(const MatrixXd &C, const MatrixXd &nodes, const Matrix<int, 1, 8> &element, std::vector<Triplet<double>> &triplets, const MatrixXd &NQ, const std::vector<double> &radius);
+        void ElementMass(const double &density, const MatrixXd &nodes, const Matrix<int, 1, 8> &element, std::vector<Triplet<double>> &triplets, const MatrixXd &NQ, const std::vector<double> &radius);
         void CalRho(const double &r, const double &s, const double &t, Matrix<double, 1, 8> &rho);
-        void Jacobian(const MatrixXd &nodes, const Element &element, const int &i);
-        void OFEintp(Matrix<double, 1, 32> &H, const double &x, const double &y, const double &z, const int &k, const MatrixXd &nodes, const Element &element, const std::vector<double> &radius);
-        std::vector<double> radius(const MatrixXd &nodes, const std::vector<Element> &elements, const size_t &ne, const size_t &nn);
+        void Jacobian(const MatrixXd &nodes, const Matrix<int, 1, 8> &element, const int &i);
+        void OFEintp(Matrix<double, 1, 32> &H, const double &x, const double &y, const double &z, const int &k, const MatrixXd &nodes, const Matrix<int, 1, 8> &element, const std::vector<double> &radius);
+        std::vector<double> radius(const MatrixXd &nodes, const Eigen::MatrixXi &elements, const size_t &ne, const size_t &nn);
     };
 
 }

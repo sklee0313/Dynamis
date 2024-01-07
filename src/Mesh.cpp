@@ -1,10 +1,10 @@
 #include <stdexcept>
 
-#include "Nodes.h"
+#include "Mesh.h"
 #include "PreProcessing.h"
 namespace Dynamis::core
 {
-    Nodes::Nodes(std::unique_ptr<std::ifstream> &file)
+    Mesh::Mesh(std::unique_ptr<std::ifstream> &file)
     {
         ///////////////////////
         //--Read nodes data--//
@@ -19,7 +19,7 @@ namespace Dynamis::core
             std::cout << "Number of nodes: " << numNodes << std::endl;
         }
 
-        if (!Dynamis::PreProcessing::readMatrix(file, "Nodes", nodes, numNodes, 3))
+        if (!Dynamis::PreProcessing::readMatrix<double>(file, "Nodes", nodes, numNodes, 3))
         {
             throw std::runtime_error("Error in reading nodes");
         }
@@ -46,28 +46,28 @@ namespace Dynamis::core
             std::cout << "Number of vertices: " << numVertices << std::endl;
         }
 
-        if (!Dynamis::PreProcessing::readMatrix(file, "Elements", elements, numElements, numVertices))
+        if (!Dynamis::PreProcessing::readMatrix<int>(file, "Elements", elements, numElements, numVertices))
         {
             throw std::runtime_error("Error in reading elements");
         }
     }
-    Eigen::MatrixXd &Nodes::getNodes()
+    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> &Mesh::getNodes()
     {
         return nodes;
     }
-    Eigen::MatrixXd &Nodes::getElements()
+    Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic> &Mesh::getElements()
     {
         return elements;
     }
-    size_t &Nodes::getNumNodes()
+    size_t &Mesh::getNumNodes()
     {
         return numNodes;
     }
-    size_t &Nodes::getNumElements()
+    size_t &Mesh::getNumElements()
     {
         return numElements;
     }
-    size_t &Nodes::getNumVertices()
+    size_t &Mesh::getNumVertices()
     {
         return numVertices;
     }
