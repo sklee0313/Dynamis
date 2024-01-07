@@ -29,13 +29,13 @@ int main(int argc, char *argv[])
     //--Check if input is valid--//
     ///////////////////////////////
 
-    auto infile = Dynamis::PreProcessing::InputChecker(argc, argv);
+    auto infile = Dynamis::PreProcessing::InputChecker(argc, argv); // fstream returned
 
     ////////////////////////////
     //--3D Linear Elasticity--//
     ////////////////////////////
 
-    Dynamis::ConstitutiveLaw::LinearElasticity elasticity(infile);
+    Dynamis::ConstitutiveLaw::LinearElasticity elasticity(infile); // read material data and instantiate the law
 
     const auto C = elasticity.getC();
     const auto density = elasticity.getDensity();
@@ -56,17 +56,20 @@ int main(int argc, char *argv[])
     //     }
     // }
 
-    int ne, npe; // number of nodes per element, number of elements
-    *infile >> ne >> npe;
-    std::cout << ne << npe << std::endl;
+    // int ne, npe; // number of nodes per element, number of elements
+    // *infile >> ne >> npe;
+    // std::cout << ne << npe << std::endl;
+
+    const size_t &ne = Nodes.getNumElements();
+    const size_t &npe = Nodes.getNumVertices();
 
     // instantiate the element
     std::vector<Element> elements;
     std::vector<int> nodesIds;
     int tmp;
-    for (int i = 0; i < ne; i++)
+    for (auto i = 0; i < ne; i++)
     {
-        for (int j = 0; j < npe; j++)
+        for (auto j = 0; j < npe; j++)
         {
             *infile >> tmp;
             nodesIds.push_back(tmp);

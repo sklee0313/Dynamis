@@ -17,12 +17,18 @@ namespace Dynamis::core
 
         // Member functions
         Eigen::MatrixXd &getNodes();
+        Eigen::MatrixXd &getElements();
         size_t &getNumNodes();
+        size_t &getNumElements();
+        size_t &getNumVertices();
 
     private:
         // Member variables
         Eigen::MatrixXd nodes;
+        Eigen::MatrixXd elements;
         size_t numNodes;
+        size_t numVertices;
+        size_t numElements;
     };
 
 } // namespace Dynamis::core
