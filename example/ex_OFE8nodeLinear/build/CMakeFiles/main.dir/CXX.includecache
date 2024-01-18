@@ -1633,6 +1633,8 @@ Eigen/Sparse
 -
 Eigen/Dense
 -
+string
+-
 Element.h
 ../../../include/Element.h
 
@@ -2222,6 +2224,8 @@ vector
 Eigen/Sparse
 -
 Eigen/Dense
+-
+string
 -
 Element.h
 /home/sungkwon/projects/Gereralized-Eigenvalue-Problem/include/Element.h

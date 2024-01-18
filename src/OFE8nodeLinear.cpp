@@ -4,13 +4,27 @@
 namespace Dynamis
 {
 
-    // Upon instantiation, all basic functions are evaluated at quadrature points and saved.
-    OFE8nodeLinear::OFE8nodeLinear(const MatrixXd &NQ)
+    const Eigen::Matrix<double, 4, 2> OFE8nodeLinear::NQ_Mass = []
     {
-        //////////////////////
-        //--Initialization--//
-        //////////////////////
+        Eigen::Matrix<double, 4, 2> m;
+        m << -0.861136311594052575224, 0.3478548451374538573731,
+            -0.3399810435848562648027, 0.6521451548625461426269,
+            0.3399810435848562648027, 0.6521451548625461426269,
+            0.861136311594052575224, 0.3478548451374538573731;
+        return m;
+    }(); // no concern in extra copy: https://en.cppreference.com/w/cpp/language/copy_elision
 
+    const Eigen::Matrix<double, 3, 2> OFE8nodeLinear::NQ_Stiffness = []
+    {
+        Eigen::Matrix<double, 3, 2> m;
+        m << -0.7745966692414833770359, 0.5555555555555555555556,
+            0, 0.8888888888888888888889,
+            0.7745966692414833770359, 0.555555555555555555556;
+        return m;
+    }();
+
+    void OFE8nodeLinear::initialization(const Eigen::MatrixXd &NQ)
+    {
         B.setZero(); // strain-displacement matrix
         K.setZero(); // element stiffness matrix
 
@@ -28,10 +42,6 @@ namespace Dynamis
         dHdx.resize(1, 32); // derivative of the displacement matrix w.r.t x-dir
         dHdy.resize(1, 32); // derivative of the displacement matrix w.r.t y-dir
         dHdz.resize(1, 32); // derivative of the displacement matrix w.r.t z-dir
-
-        ////////////////////////////
-        //--Function Evaluations--//
-        ////////////////////////////
 
         // Three FOR loops are used, each corresponds to a direction in three dimensions.
         // The iterator 'k' is the global iterator.
@@ -118,6 +128,28 @@ namespace Dynamis
         }
     }
 
+    // Upon instantiation, all basic functions are evaluated at quadrature points and saved.
+    OFE8nodeLinear::OFE8nodeLinear(const std::string &type)
+    {
+        ////////////////////////////
+        //--Function Evaluations--//
+        ////////////////////////////
+
+        if (type == "stiffness")
+        {
+            initialization(NQ_Stiffness);
+        }
+        else if (type == "mass")
+        {
+            initialization(NQ_Mass);
+        }
+        else
+        {
+            // Handle unexpected type
+            throw std::invalid_argument("Invalid type specified");
+        }
+    }
+
     // Calculate the PU functions, Rho's
     void OFE8nodeLinear::CalRho(const double &r, const double &s, const double &t, Matrix<double, 1, 8> &rho)
     {
@@ -145,16 +177,16 @@ namespace Dynamis
             H(4 * j + 3) = rho(k, j) * zK;
         }
     }
-    void OFE8nodeLinear::ElementMass(const double &density, const MatrixXd &nodes, const Matrix<int, 1, 8> &element, std::vector<Triplet<double>> &triplets, const MatrixXd &NQ, const std::vector<double> &radius)
+    void OFE8nodeLinear::ElementMass(const double &density, const MatrixXd &nodes, const Matrix<int, 1, 8> &element, std::vector<Triplet<double>> &triplets, const std::vector<double> &radius)
     {
         M.setZero();
         int nodeNum = nodes.rows();
 
-        for (int i = 0, k = 0; i < NQ.rows(); i++)
+        for (int i = 0, k = 0; i < NQ_Mass.rows(); i++)
         {
-            for (int j = 0; j < NQ.rows(); j++)
+            for (int j = 0; j < NQ_Mass.rows(); j++)
             {
-                for (int l = 0; l < NQ.rows(); l++, k++)
+                for (int l = 0; l < NQ_Mass.rows(); l++, k++)
                 {
                     Jacobian(nodes, element, k);
                     detJ = J.determinant();
@@ -190,17 +222,17 @@ namespace Dynamis
         }
     }
 
-    void OFE8nodeLinear::ElementStiffness(const MatrixXd &C, const MatrixXd &nodes, const Matrix<int, 1, 8> &element, std::vector<Triplet<double>> &triplets, const MatrixXd &NQ, const std::vector<double> &radius) //, const std::vector<double>& radius
+    void OFE8nodeLinear::ElementStiffness(const MatrixXd &C, const MatrixXd &nodes, const Matrix<int, 1, 8> &element, std::vector<Triplet<double>> &triplets, const std::vector<double> &radius) //, const std::vector<double>& radius
     {
 
         // iteration over quadrature points
         K.setZero();
         int nodeNum = nodes.rows();
-        for (int i = 0, k = 0; i < NQ.rows(); i++)
+        for (int i = 0, k = 0; i < NQ_Stiffness.rows(); i++)
         {
-            for (int s = 0; s < NQ.rows(); s++)
+            for (int s = 0; s < NQ_Stiffness.rows(); s++)
             {
-                for (int l = 0; l < NQ.rows(); l++, k++)
+                for (int l = 0; l < NQ_Stiffness.rows(); l++, k++)
                 {
                     Jacobian(nodes, element, k);
                     invJ = J.inverse();

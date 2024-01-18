@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
     ///////////////////////////////
     //--Check if input is valid--//
     ///////////////////////////////
+    std::cout << "hello " << std::endl;
 
     auto infile = Dynamis::PreProcessing::InputChecker(argc, argv); // fstream returned
 
@@ -43,56 +44,16 @@ int main(int argc, char *argv[])
     Dynamis::core::Mesh mesh(infile);
     const Eigen::MatrixXd &nodes = mesh.getNodes();
     const size_t &nn = mesh.getNumNodes();
-
-    // int nn; // number of nodes
-    // infile >> nn;
-
-    // MatrixXd nodes = MatrixXd::Zero(nn, 3);
-    // for (int i = 0; i < nn; i++)
-    // {
-    //     for (int j = 0; j < 3; j++)
-    //     {
-    //         infile >> nodes(i, j);
-    //     }
-    // }
-
-    // int ne, npe; // number of nodes per element, number of elements
-    // *infile >> ne >> npe;
-    // std::cout << ne << npe << std::endl;
-
     const size_t &ne = mesh.getNumElements();
     const size_t &npe = mesh.getNumVertices();
     const MatrixXi &elements = mesh.getElements();
 
-    // instantiate the element
-    // std::vector<Element> elements;
-    // std::vector<int> nodesIds;
-    // int tmp;
-    // for (auto i = 0; i < ne; i++)
-    // {
-    //     for (auto j = 0; j < npe; j++)
-    //     {
-    //         *infile >> tmp;
-    //         nodesIds.push_back(tmp);
-    //     }
-    //     Element element(nodesIds);
-    //     elements.push_back(element);
-    //     nodesIds.clear();
-    // }
+    //////////////////////
+    //--Discretization--//
+    //////////////////////
 
-    // Define the numerical quadrature
-    MatrixXd NQ_K(3, 2);
-    NQ_K << -0.7745966692414833770359, 0.5555555555555555555556,
-        0, 0.8888888888888888888889,
-        0.7745966692414833770359, 0.555555555555555555556;
-    MatrixXd NQ_M(4, 2);
-    NQ_M << -0.861136311594052575224, 0.3478548451374538573731,
-        -0.3399810435848562648027, 0.6521451548625461426269,
-        0.3399810435848562648027, 0.6521451548625461426269,
-        0.861136311594052575224, 0.3478548451374538573731;
-
-    Dynamis::OFE8nodeLinear ElementMethod_K = Dynamis::OFE8nodeLinear(NQ_K);
-    Dynamis::OFE8nodeLinear ElementMethod_M = Dynamis::OFE8nodeLinear(NQ_M);
+    Dynamis::OFE8nodeLinear ElementMethod_K = Dynamis::OFE8nodeLinear("stiffness");
+    Dynamis::OFE8nodeLinear ElementMethod_M = Dynamis::OFE8nodeLinear("mass");
 
     std::vector<double> radius = ElementMethod_K.radius(nodes, elements, ne, nn);
     // Construction of Stiffness Matrix using Direct Stiffness Method
@@ -100,7 +61,7 @@ int main(int argc, char *argv[])
     std::vector<Triplet<double>> triplets;
     for (int i = 0; i < ne; i++)
     {
-        ElementMethod_K.ElementStiffness(C, nodes, elements(i, all), triplets, NQ_K, radius); //,NQ
+        ElementMethod_K.ElementStiffness(C, nodes, elements(i, all), triplets, radius); //,NQ
     }
 
     SparseMatrix<double> globalK(3 * 4 * nn, 3 * 4 * nn);
@@ -113,7 +74,7 @@ int main(int argc, char *argv[])
     triplets.clear();
     for (int i = 0; i < ne; i++)
     {
-        ElementMethod_M.ElementMass(density, nodes, elements(i, all), triplets, NQ_M, radius); //,NQ
+        ElementMethod_M.ElementMass(density, nodes, elements(i, all), triplets, radius); //,NQ
     }
 
     SparseMatrix<double> globalM(3 * 4 * nn, 3 * 4 * nn);
