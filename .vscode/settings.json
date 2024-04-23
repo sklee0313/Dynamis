@@ -1,0 +1,12 @@
+{
+    "cmake.sourceDirectory": "C:/Users/sungk/OneDrive/문서/projects/Dynamis/example/ex_OFE8nodeLinear",
+    "files.associations": {
+        "array": "cpp",
+        "iosfwd": "cpp"
+    },
+    "cmake.debugConfig": {
+        "args": [
+            "../mesh_slenderRing.txt"
+        ]
+    }
+}
