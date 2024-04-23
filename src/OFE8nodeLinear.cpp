@@ -4,13 +4,27 @@
 namespace Dynamis
 {
 
-    // Upon instantiation, all basic functions are evaluated at quadrature points and saved.
-    OFE8nodeLinear::OFE8nodeLinear(const MatrixXd &NQ)
+    const Eigen::Matrix<double, 4, 2> OFE8nodeLinear::NQ_Mass = []
     {
-        //////////////////////
-        //--Initialization--//
-        //////////////////////
+        Eigen::Matrix<double, 4, 2> m;
+        m << -0.861136311594052575224, 0.3478548451374538573731,
+            -0.3399810435848562648027, 0.6521451548625461426269,
+            0.3399810435848562648027, 0.6521451548625461426269,
+            0.861136311594052575224, 0.3478548451374538573731;
+        return m;
+    }(); // no concern in extra copy: https://en.cppreference.com/w/cpp/language/copy_elision
 
+    const Eigen::Matrix<double, 3, 2> OFE8nodeLinear::NQ_Stiffness = []
+    {
+        Eigen::Matrix<double, 3, 2> m;
+        m << -0.7745966692414833770359, 0.5555555555555555555556,
+            0, 0.8888888888888888888889,
+            0.7745966692414833770359, 0.555555555555555555556;
+        return m;
+    }();
+
+    void OFE8nodeLinear::initialization(const Eigen::MatrixXd &NQ)
+    {
         B.setZero(); // strain-displacement matrix
         K.setZero(); // element stiffness matrix
 
@@ -28,10 +42,6 @@ namespace Dynamis
         dHdx.resize(1, 32); // derivative of the displacement matrix w.r.t x-dir
         dHdy.resize(1, 32); // derivative of the displacement matrix w.r.t y-dir
         dHdz.resize(1, 32); // derivative of the displacement matrix w.r.t z-dir
-
-        ////////////////////////////
-        //--Function Evaluations--//
-        ////////////////////////////
 
         // Three FOR loops are used, each corresponds to a direction in three dimensions.
         // The iterator 'k' is the global iterator.
@@ -118,6 +128,28 @@ namespace Dynamis
         }
     }
 
+    // Upon instantiation, all basic functions are evaluated at quadrature points and saved.
+    OFE8nodeLinear::OFE8nodeLinear(const std::string &type)
+    {
+        ////////////////////////////
+        //--Function Evaluations--//
+        ////////////////////////////
+
+        if (type == "stiffness")
+        {
+            initialization(NQ_Stiffness);
+        }
+        else if (type == "mass")
+        {
+            initialization(NQ_Mass);
+        }
+        else
+        {
+            // Handle unexpected type
+            throw std::invalid_argument("Invalid type specified");
+        }
+    }
+
     // Calculate the PU functions, Rho's
     void OFE8nodeLinear::CalRho(const double &r, const double &s, const double &t, Matrix<double, 1, 8> &rho)
     {
@@ -132,35 +164,35 @@ namespace Dynamis
     }
 
     // OFE interpolation
-    void OFE8nodeLinear::OFEintp(Matrix<double, 1, 32> &H, const double &x, const double &y, const double &z, const int &k, const MatrixXd &nodes, const Element &element, const std::vector<double> &radius)
+    void OFE8nodeLinear::OFEintp(Matrix<double, 1, 32> &H, const double &x, const double &y, const double &z, const int &k, const MatrixXd &nodes, const Matrix<int, 1, 8> &element, const std::vector<double> &radius)
     {
         for (int j = 0; j < 8; j++)
         {
-            xK = (x - nodes(element.nodesIds[j], 0)) / radius[element.nodesIds[j]];
-            yK = (y - nodes(element.nodesIds[j], 1)) / radius[element.nodesIds[j]];
-            zK = (z - nodes(element.nodesIds[j], 2)) / radius[element.nodesIds[j]];
+            xK = (x - nodes(element[j], 0)) / radius[element[j]];
+            yK = (y - nodes(element[j], 1)) / radius[element[j]];
+            zK = (z - nodes(element[j], 2)) / radius[element[j]];
             H(4 * j) = rho(k, j);
             H(4 * j + 1) = rho(k, j) * xK;
             H(4 * j + 2) = rho(k, j) * yK;
             H(4 * j + 3) = rho(k, j) * zK;
         }
     }
-    void OFE8nodeLinear::ElementMass(const double &density, const MatrixXd &nodes, const Element &element, std::vector<Triplet<double>> &triplets, const MatrixXd &NQ, const std::vector<double> &radius)
+    void OFE8nodeLinear::ElementMass(const double &density, const MatrixXd &nodes, const Matrix<int, 1, 8> &element, std::vector<Triplet<double>> &triplets, const std::vector<double> &radius)
     {
         M.setZero();
         int nodeNum = nodes.rows();
 
-        for (int i = 0, k = 0; i < NQ.rows(); i++)
+        for (int i = 0, k = 0; i < NQ_Mass.rows(); i++)
         {
-            for (int j = 0; j < NQ.rows(); j++)
+            for (int j = 0; j < NQ_Mass.rows(); j++)
             {
-                for (int l = 0; l < NQ.rows(); l++, k++)
+                for (int l = 0; l < NQ_Mass.rows(); l++, k++)
                 {
                     Jacobian(nodes, element, k);
                     detJ = J.determinant();
-                    x = h(k, all).dot(nodes(element.nodesIds, 0));
-                    y = h(k, all).dot(nodes(element.nodesIds, 1));
-                    z = h(k, all).dot(nodes(element.nodesIds, 2));
+                    x = h(k, all).dot(nodes(element, 0));
+                    y = h(k, all).dot(nodes(element, 1));
+                    z = h(k, all).dot(nodes(element, 2));
                     OFEintp(H, x, y, z, k, nodes, element, radius);
                     M.noalias() += H.transpose() * H * detJ * weight(k) * density;
                 }
@@ -170,10 +202,10 @@ namespace Dynamis
         std::vector<int> idx;
         for (int i = 0; i < 8; i++)
         {
-            idx.push_back(4 * (element.nodesIds[i]));
-            idx.push_back(4 * (element.nodesIds[i]) + 1);
-            idx.push_back(4 * (element.nodesIds[i]) + 2);
-            idx.push_back(4 * (element.nodesIds[i]) + 3);
+            idx.push_back(4 * (element[i]));
+            idx.push_back(4 * (element[i]) + 1);
+            idx.push_back(4 * (element[i]) + 2);
+            idx.push_back(4 * (element[i]) + 3);
         }
 
         for (int i = 0; i < M.rows(); i++)
@@ -190,49 +222,49 @@ namespace Dynamis
         }
     }
 
-    void OFE8nodeLinear::ElementStiffness(const MatrixXd &C, const MatrixXd &nodes, const Element &element, std::vector<Triplet<double>> &triplets, const MatrixXd &NQ, const std::vector<double> &radius) //, const std::vector<double>& radius
+    void OFE8nodeLinear::ElementStiffness(const MatrixXd &C, const MatrixXd &nodes, const Matrix<int, 1, 8> &element, std::vector<Triplet<double>> &triplets, const std::vector<double> &radius) //, const std::vector<double>& radius
     {
 
         // iteration over quadrature points
         K.setZero();
         int nodeNum = nodes.rows();
-        for (int i = 0, k = 0; i < NQ.rows(); i++)
+        for (int i = 0, k = 0; i < NQ_Stiffness.rows(); i++)
         {
-            for (int s = 0; s < NQ.rows(); s++)
+            for (int s = 0; s < NQ_Stiffness.rows(); s++)
             {
-                for (int l = 0; l < NQ.rows(); l++, k++)
+                for (int l = 0; l < NQ_Stiffness.rows(); l++, k++)
                 {
                     Jacobian(nodes, element, k);
                     invJ = J.inverse();
                     detJ = J.determinant();
 
-                    x = h(k, all).dot(nodes(element.nodesIds, 0));
-                    y = h(k, all).dot(nodes(element.nodesIds, 1));
-                    z = h(k, all).dot(nodes(element.nodesIds, 2));
+                    x = h(k, all).dot(nodes(element, 0));
+                    y = h(k, all).dot(nodes(element, 1));
+                    z = h(k, all).dot(nodes(element, 2));
                     // iteration over nodes to obtain dHdx, dHdy, and dHdz
                     for (int j = 0; j < 8; j++)
                     {
-                        xK = (x - nodes(element.nodesIds[j], 0)) / radius[element.nodesIds[j]];
-                        yK = (y - nodes(element.nodesIds[j], 1)) / radius[element.nodesIds[j]];
-                        zK = (z - nodes(element.nodesIds[j], 2)) / radius[element.nodesIds[j]];
+                        xK = (x - nodes(element[j], 0)) / radius[element[j]];
+                        yK = (y - nodes(element[j], 1)) / radius[element[j]];
+                        zK = (z - nodes(element[j], 2)) / radius[element[j]];
                         rhoK_x = rho_r(k, j) * invJ(0, 0) + rho_s(k, j) * invJ(0, 1) + rho_t(k, j) * invJ(0, 2);
                         rhoK_y = rho_r(k, j) * invJ(1, 0) + rho_s(k, j) * invJ(1, 1) + rho_t(k, j) * invJ(1, 2);
                         rhoK_z = rho_r(k, j) * invJ(2, 0) + rho_s(k, j) * invJ(2, 1) + rho_t(k, j) * invJ(2, 2);
 
                         dHdx(4 * j) = rhoK_x;
-                        dHdx(4 * j + 1) = rhoK_x * xK + rho(k, j) / radius[element.nodesIds[j]];
+                        dHdx(4 * j + 1) = rhoK_x * xK + rho(k, j) / radius[element[j]];
                         dHdx(4 * j + 2) = rhoK_x * yK;
                         dHdx(4 * j + 3) = rhoK_x * zK;
 
                         dHdy(4 * j) = rhoK_y;
                         dHdy(4 * j + 1) = rhoK_y * xK;
-                        dHdy(4 * j + 2) = rhoK_y * yK + rho(k, j) / radius[element.nodesIds[j]];
+                        dHdy(4 * j + 2) = rhoK_y * yK + rho(k, j) / radius[element[j]];
                         dHdy(4 * j + 3) = rhoK_y * zK;
 
                         dHdz(4 * j) = rhoK_z;
                         dHdz(4 * j + 1) = rhoK_z * xK;
                         dHdz(4 * j + 2) = rhoK_z * yK;
-                        dHdz(4 * j + 3) = rhoK_z * zK + rho(k, j) / radius[element.nodesIds[j]];
+                        dHdz(4 * j + 3) = rhoK_z * zK + rho(k, j) / radius[element[j]];
                     }
                     B(0, seq(0, 31)) = dHdx;
                     B(1, seq(32, 63)) = dHdy;
@@ -256,18 +288,18 @@ namespace Dynamis
         std::vector<int> idx;
         for (int i = 0; i < 8; i++)
         {
-            idx.push_back(4 * (element.nodesIds[i]));
-            idx.push_back(4 * (element.nodesIds[i]) + 1);
-            idx.push_back(4 * (element.nodesIds[i]) + 2);
-            idx.push_back(4 * (element.nodesIds[i]) + 3);
+            idx.push_back(4 * (element[i]));
+            idx.push_back(4 * (element[i]) + 1);
+            idx.push_back(4 * (element[i]) + 2);
+            idx.push_back(4 * (element[i]) + 3);
         }
 
         // int idx[9];
         // for (int i = 0; i < 3; i++)
         // {
-        //     idx[3 * i] = 3 * (element.nodesIds[i]);
-        //     idx[3 * i + 1] = 3 * (element.nodesIds[i]) + 1;
-        //     idx[3 * i + 2] = 3 * (element.nodesIds[i]) + 2;
+        //     idx[3 * i] = 3 * (element[i]);
+        //     idx[3 * i + 1] = 3 * (element[i]) + 1;
+        //     idx[3 * i + 2] = 3 * (element[i]) + 2;
         // }
 
         for (int i = 0; i < K.rows(); i++)
@@ -275,7 +307,7 @@ namespace Dynamis
             for (int j = 0; j < K.cols(); j++)
             {
                 if (i < 32)
-                    row = 3 * idx[i]; // idx[i]; // element.nodesIds[i];
+                    row = 3 * idx[i]; // idx[i]; // element[i];
                 else if (i > 31 & i < 64)
                     row = 3 * idx[i - 32] + 1; // idx[i - 32] + 4 * nodeNum;
                 else if (i > 63 & i < 96)
@@ -300,14 +332,14 @@ namespace Dynamis
         }
     }
 
-    void OFE8nodeLinear::Jacobian(const MatrixXd &nodes, const Element &element, const int &i)
+    void OFE8nodeLinear::Jacobian(const MatrixXd &nodes, const Matrix<int, 1, 8> &element, const int &i)
     {
-        J << h_r(i, all) * nodes(element.nodesIds, 0), h_r(i, all) * nodes(element.nodesIds, 1), h_r(i, all) * nodes(element.nodesIds, 2),
-            h_s(i, all) * nodes(element.nodesIds, 0), h_s(i, all) * nodes(element.nodesIds, 1), h_s(i, all) * nodes(element.nodesIds, 2),
-            h_t(i, all) * nodes(element.nodesIds, 0), h_t(i, all) * nodes(element.nodesIds, 1), h_t(i, all) * nodes(element.nodesIds, 2);
+        J << h_r(i, all) * nodes(element, 0), h_r(i, all) * nodes(element, 1), h_r(i, all) * nodes(element, 2),
+            h_s(i, all) * nodes(element, 0), h_s(i, all) * nodes(element, 1), h_s(i, all) * nodes(element, 2),
+            h_t(i, all) * nodes(element, 0), h_t(i, all) * nodes(element, 1), h_t(i, all) * nodes(element, 2);
     }
 
-    std::vector<double> OFE8nodeLinear::radius(const MatrixXd &nodes, const std::vector<Element> &elements, int &ne, const size_t &nn)
+    std::vector<double> OFE8nodeLinear::radius(const MatrixXd &nodes, const Eigen::MatrixXi &elements, const size_t &ne, const size_t &nn)
     {
 
         // find the combinations
@@ -323,15 +355,15 @@ namespace Dynamis
 
             for (auto it = begin(combi); it != end(combi); ++it)
             {
-                X0 = nodes(elements[i].nodesIds[it->at(0)], 0);
-                Y0 = nodes(elements[i].nodesIds[it->at(0)], 1);
-                Z0 = nodes(elements[i].nodesIds[it->at(0)], 2);
-                X1 = nodes(elements[i].nodesIds[it->at(1)], 0);
-                Y1 = nodes(elements[i].nodesIds[it->at(1)], 1);
-                Z1 = nodes(elements[i].nodesIds[it->at(1)], 2);
+                X0 = nodes(elements(i, it->at(0)), 0);
+                Y0 = nodes(elements(i, it->at(0)), 1);
+                Z0 = nodes(elements(i, it->at(0)), 2);
+                X1 = nodes(elements(i, it->at(1)), 0);
+                Y1 = nodes(elements(i, it->at(1)), 1);
+                Z1 = nodes(elements(i, it->at(1)), 2);
                 d = sqrt(pow(X0 - X1, 2.0) + pow(Y0 - Y1, 2.0) + pow(Z0 - Z1, 2.0));
-                radii[elements[i].nodesIds[it->at(0)]].push_back(d);
-                radii[elements[i].nodesIds[it->at(1)]].push_back(d);
+                radii[elements(i, it->at(0))].push_back(d);
+                radii[elements(i, it->at(1))].push_back(d);
             }
 
             // double X0 = nodes(elements[i].nodesIds[0], 0);
